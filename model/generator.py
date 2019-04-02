@@ -16,7 +16,7 @@ class ResnetBlock(nn.Module):
             nn.ReLU(inplace=True)
         ]
 
-        if use_bias:
+        if use_dropout:
             nn.Dropout(out)
 
         block += [
@@ -88,10 +88,13 @@ class ResnetGenerator(nn.Module):
                 nn.BatchNorm2d(cur_n_filters//2),
                 nn.ReLU(inplace=True)
             ]
-        
-        model += [nn.ReflectionPad2d(3)]
-        model += [nn.Conv2d(n_filters, out_channels, kernel_size=7, padding=0)]
-        model += [nn.Tanh()]
+
+        model += [
+            nn.ReflectionPad2d(3),
+            nn.Conv2d(n_filters, out_channels, kernel_size=7, padding=0),
+            nn.Tanh()
+        ]
+
         self.model = nn.Sequential(*model)
     
     def forward(self, x):
