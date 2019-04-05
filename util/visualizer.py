@@ -17,6 +17,13 @@ class Visualizer():
     def __init__(self,display_id= 1, use_html= True, display_winsize= 256, display_name="test", display_port =8097, 
         display_ncols = 4, display_server ="http://localhost", display_env ='main', checkpoints_dir = './checkpoints',
         ):
+        ''' Initialize parameters to start up the local server for Visdom
+        display_ id     -- Indicate Visdom where to plot the picture. Id =1 means top left
+        display_winsize -- Indicate the window size
+        display_port    -- By default, the Visdom uses 8097
+        display_ncols   -- By default, we need 4 columns for generated pictures
+        checkpoints_dir -- Save the intermediate progress
+        '''
         self.display_id = display_id
         self.use_html = use_html
         self.display_winsize = display_winsize
@@ -65,21 +72,13 @@ class Visualizer():
             epoch (int)            -- current epoch
             progress_ratio (float) -- progress (percentage) in the current epoch, between 0 to 1
                                       = current total num of data being iterated / total datalength
-            legend                  -- Determines how many different types of loss """
+            legend                 -- Determines how many different types of loss 
+            Losses                 -- Could be a single class loss or a list of different types losses
+            """
         #check if current object has the given attribute "plot data" or not
         if not hasattr(self, 'plot_data'):
             if legend != None:
                 self.plot_data = {'X':[], 'Y':[], 'legend':[*legend]}
-                try:
-                    self.vis.line(X=np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1),
-                        Y=np.array(self.plot_data['Y']),
-                        opts={
-                        'title': self.name + ' loss over time',
-                        'legend': self.plot_data['legend'],
-                        'xlabel': 'epoch',
-                        'ylabel': 'loss'},)
-                except VisdomExceptionBase:
-                    self.create_visdom_connection()
             else:
                 self.plot_data = {'X':[], 'Y':[]}
 
@@ -88,18 +87,33 @@ class Visualizer():
 
         self.plot_data['Y'].append(losses)
         #print('the current loss is {}'.format(self.plot_data['Y']))
-        try:
-            self.vis.line(
-                #X=np.stack([np.array(self.plot_data['X'])] * 1, 1),
-                X=np.array(self.plot_data['X']),
-                Y=np.array(self.plot_data['Y']),
-                opts={
-                'title': self.name + ' loss over time',
-                'xlabel': 'epoch',
-                'ylabel': 'loss'},
-                win = self.display_id)
-        except VisdomExceptionBase:
-            self.create_visdom_connection()
+
+        #plot the loss. Need to determine if it is multi- loss or single loss
+        if legend != None:
+            try:
+                self.vis.line(X=np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1),
+                    Y=np.array(self.plot_data['Y']),
+                    opts={
+                    'title': self.name + ' loss over time',
+                    'legend': self.plot_data['legend'],
+                    'xlabel': 'epoch',
+                    'ylabel': 'loss'},
+                    win = self.display_id)
+            except VisdomExceptionBase:
+                self.create_visdom_connection()
+        else:
+            try:
+                self.vis.line(
+                    #X=np.stack([np.array(self.plot_data['X'])] * 1, 1),
+                    X=np.array(self.plot_data['X']),
+                    Y=np.array(self.plot_data['Y']),
+                    opts={
+                    'title': self.name + ' loss over time',
+                    'xlabel': 'epoch',
+                    'ylabel': 'loss'},
+                    win = self.display_id)
+            except VisdomExceptionBase:
+                self.create_visdom_connection()
 
 
     def print_loss(self,epoch,iterations,loss,time_for_cal):
