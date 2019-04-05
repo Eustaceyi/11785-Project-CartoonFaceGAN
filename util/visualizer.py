@@ -84,8 +84,11 @@ class Visualizer():
 
         self.plot_data['X'].append(epoch + progress_ratio)
         #print('the current X is {}'.format(self.plot_data['X']))
-
-        self.plot_data['Y'].append(losses)
+        if legend != None:
+            self.plot_data['Y'].append ([*losses]) 
+            #what we want is [[loss_c1,loss_c2, loss_c3], [loss_c1,loss_c2, loss_c3], [loss_c1,loss_c2, loss_c3]]
+        else:
+            self.plot_data['Y'].append(losses)
         #print('the current loss is {}'.format(self.plot_data['Y']))
 
         #plot the loss. Need to determine if it is multi- loss or single loss
