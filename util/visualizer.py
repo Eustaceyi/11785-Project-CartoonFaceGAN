@@ -7,6 +7,7 @@ from util import utils
 from subprocess import Popen, PIPE
 from scipy.misc import imresize
 import visdom
+import torch
 
 if sys.version_info[0] == 2:
     VisdomExceptionBase = Exception
@@ -117,6 +118,21 @@ class Visualizer():
                     win = self.display_id)
             except VisdomExceptionBase:
                 self.create_visdom_connection()
+
+    def plot_pictures(picture_array, num_epochs):
+        '''arguments: 
+           picture_arrya -- Picture array's dimension [num_pics, #channels, width, height]
+                            i.e pictures' shape: [8, 3, 10,10]  --> means we have 8 pictures, 3 channels, 10 in width, 10 in height 
+           num_epochs    -- Current epoch numbers          
+           '''
+        numpy_image = []
+
+        for image in picture_array:
+            image = image.cpu()
+            numpy_image.append(image.numpy())
+        
+        numpy_image = np.array(numpy_image)
+        self.vis.images(numpy_image, num_rows = 4, padding = 2, opts = dict(title = '%s' %num_epochs), win = self.display_id+1)
 
     def print_loss(self,epoch,iterations,loss,time_for_cal):
         """print current losses on console;
