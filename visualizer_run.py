@@ -62,8 +62,11 @@ def main():
             optimizer.step() 
             #print("loss is %.3f" %loss.item())
             total_loss += loss.item()
+            loss_total = [total_loss, total_loss +1, total_loss +2]  #how visualizer takes in the loss
+            legend = ["1","2","3"]                                   #how visualizer takes in the legend
 
-            visual.plot_loss(epoch, epoch_iter / 1000, total_loss)
+            visual.plot_loss(epoch, epoch_iter / 1000, loss_total, legend)  #for multi- classes losses ploting
+
             #print(y.data)
            # print(predicted)
 

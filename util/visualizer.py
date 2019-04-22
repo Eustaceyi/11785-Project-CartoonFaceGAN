@@ -118,7 +118,6 @@ class Visualizer():
             except VisdomExceptionBase:
                 self.create_visdom_connection()
 
-
     def print_loss(self,epoch,iterations,loss,time_for_cal):
         """print current losses on console;
         Parameters:
