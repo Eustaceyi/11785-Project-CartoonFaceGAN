@@ -6,10 +6,10 @@ from model.discriminator import *
 from model.generator import *
 
 class CycleGAN(nn.Module):
-    def __init__(self, in_channels, out_channels, n_filters, n_blocks, use_dropout=False, use_bias=False):
+    def __init__(self, in_channels, out_channels, n_filters, n_blocks, n_sample, use_dropout=False, use_bias=False):
         super(CycleGAN, self).__init__()
-        self.G = ResnetGenerator(in_channels, out_channels, n_filters, n_blocks, use_dropout)
-        self.F = ResnetGenerator(in_channels, out_channels, n_filters, n_blocks, use_dropout)
+        self.G = ResnetGenerator(in_channels, out_channels, n_filters, n_blocks, n_sample, use_dropout)
+        self.F = ResnetGenerator(in_channels, out_channels, n_filters, n_blocks, n_sample, use_dropout)
         self.D_x = Discriminator()
         self.D_y = Discriminator()
         

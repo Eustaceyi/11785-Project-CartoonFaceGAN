@@ -37,8 +37,8 @@ class Cycle_GAN_Dataset(utils.Dataset):
     def __len__(self):
         return self.train_A.__len__()
 
-train_path_A = 'C:/Users/eusta/Dropbox/Courses/11785/project/dataset/human_face/'
-train_path_B = 'C:/Users/eusta/Dropbox/Courses/11785/project/dataset/emoji_face/'
+train_path_A = 'D:/Dropbox/Courses/11785/project/dataset/human_face/'
+train_path_B = 'D:/Dropbox/Courses/11785/project/dataset/emoji_face/'
 train_dataset = Cycle_GAN_Dataset(train_path_A, train_path_B)
 
 # Dataloader
@@ -55,7 +55,7 @@ optimizer = torch.optim.Adam(Model.parameters(), lr=1e-3, weight_decay=5e-5)
 
 # Training Loop
 total_step = len(train_loader)
-for epoch in range(1):
+for epoch in range(num_epochs):
     Model.train()
     for i, (train_A, train_B) in enumerate(train_loader):
         train_A = train_A.to(device)
@@ -79,7 +79,7 @@ for epoch in range(1):
         loss = gan_loss_a + gan_loss_b + cycle_loss_a + cycle_loss_b
         loss.backward()
         optimizer.step()
-        if (i+1) % 10 == 0:
+        if (i+1) % 50 == 0:
             print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                     .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
         if (i+1) % 1000 == 0:    
@@ -87,10 +87,10 @@ for epoch in range(1):
             fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')
             recover_A = transforms.ToPILImage()(recover_A.squeeze(0).detach().cpu()).convert('RGB')
             recover_B = transforms.ToPILImage()(recover_B.squeeze(0).detach().cpu()).convert('RGB')
-            fake_A.save('fake_A.png')
-            fake_B.save('fake_B.png')
-            recover_A.save('recover_A.png')
-            recover_B.save('recover_B.png')
+            fake_A.save('fake_A_'+str(epoch)+'.png')
+            fake_B.save('fake_B_'+str(epoch)+'.png')
+            recover_A.save('recover_A_'+str(epoch)+'.png')
+            recover_B.save('recover_B_'+str(epoch)+'.png')
 
 
 
