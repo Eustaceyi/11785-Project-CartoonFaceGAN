@@ -10,6 +10,6 @@ Use CycleGAN to transfer human face image into cartoon style.
 	- util/utils.py and util/visualizer.py: Enabled visdom for loss (single class loss)
 	- Multi- loss should work, need to be tested
 ### 04/22/2019 
-- New functions for Visualizer
+- New functions for Visualizer:
         - Enabled multiclass losses plot
 	- Enabled plotting pictures on visdom server
