@@ -66,7 +66,8 @@ def main():
             legend = ["1","2","3"]                                   #how visualizer takes in the legend
 
             visual.plot_loss(epoch, epoch_iter / 1000, loss_total, legend)  #for multi- classes losses ploting
-
+            visual.plot_pictures(torch.tensor(np.random.randn(8, 3, 128, 128)),
+            10)
             #print(y.data)
            # print(predicted)
 

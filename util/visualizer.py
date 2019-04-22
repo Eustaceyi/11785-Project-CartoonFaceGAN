@@ -119,7 +119,7 @@ class Visualizer():
             except VisdomExceptionBase:
                 self.create_visdom_connection()
 
-    def plot_pictures(picture_array, num_epochs):
+    def plot_pictures(self, picture_array, num_epochs):
         '''arguments: 
            picture_arrya -- Picture array's dimension [num_pics, #channels, width, height]
                             i.e pictures' shape: [8, 3, 10,10]  --> means we have 8 pictures, 3 channels, 10 in width, 10 in height 
@@ -132,7 +132,7 @@ class Visualizer():
             numpy_image.append(image.numpy())
         
         numpy_image = np.array(numpy_image)
-        self.vis.images(numpy_image, num_rows = 4, padding = 2, opts = dict(title = '%s' %num_epochs), win = self.display_id+1)
+        self.vis.images(numpy_image, nrow = 4, padding = 2, opts = dict(title = '%s' %num_epochs), win = self.display_id+1)
 
     def print_loss(self,epoch,iterations,loss,time_for_cal):
         """print current losses on console;
