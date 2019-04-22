@@ -12,6 +12,7 @@ class GANLoss(nn.Module):
         self.fake_label = torch.tensor(0.0)
 
     def __get_target_tensor(self, predictions, is_real):
+        predictions = predictions.detach().cpu()
         target_tensor = self.real_label if is_real else self.fake_label
         return target_tensor.expand_as(predictions)
     
