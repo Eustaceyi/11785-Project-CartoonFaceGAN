@@ -102,22 +102,3 @@ class ResnetGenerator(nn.Module):
 
     def weights_init(self):
         pass
-
-
-class CycleGAN(nn.Module):
-    def __init__(self, in_channels, out_channels, n_filters, n_blocks, n_layers, use_dropout=False, use_bias=False):
-        super(CycleGAN, self).__init__()
-        self.G = ResnetGenerator(in_channels, out_channels, n_filters, n_blocks)
-        self.F = ResnetGenerator(in_channels, out_channels, n_filters, n_blocks)
-        # self.Dx = Discriminator(input_pic_chan=in_channels, num_layers=n_layers, norm_layer_type='batch')
-        # self.Dy = Discriminator(input_pic_chan=in_channels, num_layers=n_layers, norm_layer_type='batch')
-
-    def forward(self, input_A, input_B):
-        real_A = input_A
-        real_B = input_B
-        fake_B = self.G(self.real_A) # fB = G_A(A)
-        recover_A = self.F(self.fake_B) # rA = G_B(G_A(A))
-        fake_A = self.F(self.real_B) # fA = G_B(B)
-        recover_B = self.G(self.fake_A) # rB = G_A(G_B(B))
-
-        return fake_A, fake_B, recover_A, recover_B

@@ -3,7 +3,9 @@ import numpy as np
 import torch.optim as optim
 
 from model.generator import *
+from model.discriminator import *
 from model.loss import *
+from model.cyclegan import *
 
 test_in1 = np.random.randn(2, 3, 128, 128)
 test_in1 = torch.Tensor(test_in1)
@@ -11,27 +13,31 @@ test_in2 = np.random.randn(2, 3, 128, 128)
 test_in2 = torch.Tensor(test_in2)
 print(test_in1.shape)
 
-G = ResnetGenerator(in_channels=3, out_channels=3, n_filters=4, n_blocks=1, use_dropout=False)
-F = ResnetGenerator(in_channels=3, out_channels=3, n_filters=4, n_blocks=1, use_dropout=False)
-
-test_out1 = G(test_in1)
-test_out2 = F(test_out1)
+cycle_gan = CycleGAN(in_channels=3, out_channels=3, n_filters=4, n_blocks=1)
 
 gan_criterion = GANLoss()
 cycle_criterion = CycleLoss()
 identity_criterion = IdentityLoss()
 
-optimizer = optim.Adam(G.parameters(), lr=1e-3, weight_decay=5e-5)
-gan_loss = gan_criterion(test_out1, is_real=False)
-cycle_loss = cycle_criterion(test_out1, test_out2)
-identity_loss = identity_criterion(test_out1, test_in1)
-# loss1 = gan_criterion(test_out1, True)
-# loss1.backward()
-# optimizer.step()
+cycle_optim = optim.Adam(cycle_gan.parameters(), lr=1e-3, weight_decay=5e-5)
+d_optim = optim.Adam(cycle_gan.parameters(), lr=1e-3, weight_decay=5e-5)
 
-loss = gan_loss + cycle_loss + identity_loss
-loss.backward()
-optimizer.step()
+fake_A, fake_B, recover_A, recover_B = cycle_gan.generator_forward(test_in1, test_in2)
+bce_A, bce_B = cycle_gan.discriminator_forward(fake_A, fake_B)
+gan_loss_a = gan_criterion(bce_A, is_real=False)
+gan_loss_b = gan_criterion(bce_B, is_real=False)
+cycle_loss_a = cycle_criterion(recover_A, test_in1)
+cycle_loss_b = cycle_criterion(recover_B, test_in2)
+identity_loss_a = identity_criterion(fake_A, test_in1)
+identity_loss_b = identity_criterion(fake_B, test_in2)
 
-print(loss.item())
-print(test_out1.shape)
+# cycle_loss = cycle_loss_a + cycle_loss_b + identity_loss_b + identity_loss_b
+# cycle_loss.backward()
+# cycle_optim.step()
+
+d_loss = gan_loss_a + gan_loss_b
+d_loss.backward()
+d_optim.step()
+
+# print(cycle_loss.item())
+print(d_loss.item())
