@@ -4,6 +4,12 @@ Use CycleGAN to transfer human face image into cartoon style.
 
 
 ## Updates
+### 03/31/2019
+- New files:
+	- generator.py: generator with resnet block
+	- discriminator: binary classifier with CNN
+	- loss.py: GAN loss, cycle loss and identity loss
+	- options.py: arguments
 ### 04/04/2019 -- Enable visualizer
 - New files:
 	- visualizer_run.py: a simple CNN classification model, used to test visualizer
@@ -13,3 +19,7 @@ Use CycleGAN to transfer human face image into cartoon style.
 - New functions:
 	- Enabled multi-class losses plotting
 	- Enabled plotting pictures onto visdom
+- New files:
+	- cyclegan.py: wrap the generators and discriminators
+	- train.py: train the model
+	- code_test.py: using for debug the code
