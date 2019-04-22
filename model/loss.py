@@ -41,14 +41,14 @@ class CycleLoss(nn.L1Loss):
 
 class IdentityLoss(nn.L1Loss):
     def __init__(self, coef=10.0):
-        super(CycleLoss, self).__init__()
+        super(IdentityLoss, self).__init__()
         self.coef = coef
 
     def __call__(self, input, target):
         return self.forward(input, target)
     
     def forward(self, input, target):
-        loss = super(CycleLoss, self).forward(input, target)
+        loss = super(IdentityLoss, self).forward(input, target)
         return self.coef * loss
 
     def update_coef(self, coef):
