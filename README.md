@@ -23,3 +23,9 @@ Use CycleGAN to transfer human face image into cartoon style.
 	- cyclegan.py: wrap the generators and discriminators
 	- train.py: train the model
 	- code_test.py: using for debug the code
+### 04/23/2019
+- Modify files:
+	- Add optimizer and backward function into CycleGAN class
+	- Modify train.py to visualize images
+- TODO:
+	- Seems that it is not learning very well, need further debug
