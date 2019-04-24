@@ -9,6 +9,7 @@ from model.loss import GANLoss, CycleLoss, IdentityLoss
 from model.generator import ResnetGenerator
 from model.discriminator import Discriminator
 from model.cyclegan import CycleGAN
+from util.visualizer import Visualizer
 from PIL import Image
 
 # Hyper Parameters
@@ -37,21 +38,18 @@ class Cycle_GAN_Dataset(utils.Dataset):
     def __len__(self):
         return self.train_A.__len__()
 
-train_path_A = 'D:/Dropbox/Courses/11785/project/dataset/human_face/'
-train_path_B = 'D:/Dropbox/Courses/11785/project/dataset/emoji_face/'
+train_path_A = 'C:/Users/eusta/Dropbox/Courses/11785/project/dataset/human_face/'
+train_path_B = 'C:/Users/eusta/Dropbox/Courses/11785/project/dataset/emoji_face/'
 train_dataset = Cycle_GAN_Dataset(train_path_A, train_path_B)
 
 # Dataloader
 train_loader = utils.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # Model
-Model = CycleGAN(in_channels=3, out_channels=3, n_filters=32, n_blocks=3, n_sample=4).to(device)
+Model = CycleGAN(in_channels=3, out_channels=3, n_filters=32, n_blocks=3, n_sample=4)
 
-# Loss and Optimizer
-gan_criterion = GANLoss()
-cycle_criterion = CycleLoss(coef=10)
-
-optimizer = torch.optim.Adam(Model.parameters(), lr=1e-3, weight_decay=5e-5)
+# Visual
+visual = Visualizer()
 
 # Training Loop
 total_step = len(train_loader)
@@ -63,10 +61,7 @@ for epoch in range(num_epochs):
 
         fake_A, fake_B, recover_A, recover_B = Model.generator_forward(train_A, train_B)
         bce_A, bce_B = Model.discriminator_forward(fake_A, fake_B)
-        gan_loss_a = gan_criterion(bce_A, is_real=False)
-        gan_loss_b = gan_criterion(bce_B, is_real=False)
-        cycle_loss_a = cycle_criterion(recover_A, train_A)
-        cycle_loss_b = cycle_criterion(recover_B, train_B)
+        Model.optim_params()
         # fake_A = transforms.ToPILImage()(fake_A.squeeze(0).detach().cpu()).convert('RGB')
         # fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')
         # recover_A = transforms.ToPILImage()(recover_A.squeeze(0).detach().cpu()).convert('RGB')
@@ -75,22 +70,24 @@ for epoch in range(num_epochs):
         # fake_B.save('fake_B.png')
         # recover_A.save('recover_A.png')
         # recover_B.save('recover_B.png')
-        
-        loss = gan_loss_a + gan_loss_b + cycle_loss_a + cycle_loss_b
-        loss.backward()
-        optimizer.step()
+
         if (i+1) % 50 == 0:
-            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
-                    .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
-        if (i+1) % 1000 == 0:    
-            fake_A = transforms.ToPILImage()(fake_A.squeeze(0).detach().cpu()).convert('RGB')
-            fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')
-            recover_A = transforms.ToPILImage()(recover_A.squeeze(0).detach().cpu()).convert('RGB')
-            recover_B = transforms.ToPILImage()(recover_B.squeeze(0).detach().cpu()).convert('RGB')
-            fake_A.save('fake_A_'+str(epoch)+'.png')
-            fake_B.save('fake_B_'+str(epoch)+'.png')
-            recover_A.save('recover_A_'+str(epoch)+'.png')
-            recover_B.save('recover_B_'+str(epoch)+'.png')
+            print('Epoch [{}/{}], Step [{}/{}]'
+                    .format(epoch+1, num_epochs, i+1, total_step))
+        if (i+1) % 100 == 0:    
+            to_vis = [train_A.detach(), train_B.detach(), fake_A.detach(),
+                    fake_B.detach(), recover_A.detach(), recover_B.detach()]
+            to_vis = torch.stack(to_vis).squeeze(1)
+            print(to_vis.shape)
+            visual.plot_pictures(to_vis, epoch)
+            # fake_A = transforms.ToPILImage()(fake_A.squeeze(0).detach().cpu()).convert('RGB')
+            # fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')
+            # recover_A = transforms.ToPILImage()(recover_A.squeeze(0).detach().cpu()).convert('RGB')
+            # recover_B = transforms.ToPILImage()(recover_B.squeeze(0).detach().cpu()).convert('RGB')
+            # fake_A.save('fake_A_'+str(epoch)+'.png')
+            # fake_B.save('fake_B_'+str(epoch)+'.png')
+            # recover_A.save('recover_A_'+str(epoch)+'.png')
+            # recover_B.save('recover_B_'+str(epoch)+'.png')
 
 
 
