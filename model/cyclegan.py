@@ -18,6 +18,7 @@ class CycleGAN(nn.Module):
         self.D_y = Discriminator().cuda()
         self.GANLoss = GANLoss()
         self.CycleLoss = CycleLoss()
+        self.IdtLoss = IdentityLoss()
         self.optimizer_G = torch.optim.Adam(itertools.chain(self.G.parameters(), self.F.parameters()), lr=learning_rate)
         self.optimizer_D = torch.optim.Adam(itertools.chain(self.D_x.parameters(), self.D_y.parameters()), lr=learning_rate)
         
@@ -53,11 +54,15 @@ class CycleGAN(nn.Module):
         self.D_y_loss = self.discriminator_backward_basic(self.D_y, self.real_A, self.fake_A)
 
     def G_backward(self):
+        self.idt_A = self.G(self.real_B)
+        self.idt_B = self.F(self.real_A)
+        self.idt_loss_A = self.IdtLoss(self.idt_A, self.real_B) * 5
+        self.idt_loss_B = self.IdtLoss(self.idt_B, self.real_A) * 5
         self.G_loss = self.GANLoss(self.D_x(self.fake_B), True)
         self.F_loss = self.GANLoss(self.D_y(self.fake_A), True)
         self.cycleA_loss = self.CycleLoss(self.recover_A, self.real_A) * 10
         self.cycleB_loss = self.CycleLoss(self.recover_B, self.real_B) * 10
-        self.generator_loss = self.G_loss + self.F_loss + self.cycleA_loss + self.cycleB_loss
+        self.generator_loss = self.G_loss + self.F_loss + self.cycleA_loss + self.cycleB_loss + self.idt_loss_A + self.idt_loss_B
         self.generator_loss.backward()
 
     def optim_params(self):
