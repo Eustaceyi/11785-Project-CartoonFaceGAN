@@ -53,6 +53,7 @@ visual = Visualizer()
 
 # Training Loop
 total_step = len(train_loader)
+print('Start Training!')
 for epoch in range(num_epochs):
     Model.train()
     for i, (train_A, train_B) in enumerate(train_loader):
