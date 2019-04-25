@@ -71,10 +71,10 @@ for epoch in range(num_epochs):
         # recover_A.save('recover_A.png')
         # recover_B.save('recover_B.png')
 
-        if (i+1) % 50 == 0:
+        if (i+1) % 5 == 0:
             print('Epoch [{}/{}], Step [{}/{}]'
                     .format(epoch+1, num_epochs, i+1, total_step))
-        if (i+1) % 100 == 0:    
+        if (i+1) % 50 == 0:    
             to_vis = [train_A.detach(), train_B.detach(), fake_A.detach(),
                     fake_B.detach(), recover_A.detach(), recover_B.detach()]
             to_vis = torch.stack(to_vis).squeeze(1)
