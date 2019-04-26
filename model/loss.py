@@ -15,7 +15,7 @@ class GANLoss(nn.Module):
             target_tensor = self.real_label
         else:
             target_tensor = self.fake_label
-        return target_tensor.expand_as(prediction)
+        return target_tensor.expand_as(prediction).cuda()
 
     def __call__(self, prediction, target_is_real):
         return self.forward(prediction, target_is_real)
