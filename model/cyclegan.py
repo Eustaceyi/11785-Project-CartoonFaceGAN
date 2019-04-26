@@ -65,11 +65,21 @@ class CycleGAN(nn.Module):
         self.generator_loss = self.G_loss + self.F_loss + self.cycleA_loss + self.cycleB_loss + self.idt_loss_A + self.idt_loss_B
         self.generator_loss.backward()
 
+    def set_requires_grad(self, nets, requires_grad=False):
+        if not isinstance(nets, list):
+            nets = [nets]
+        for net in nets:
+            if net is not None:
+                for param in net.parameters():
+                    param.requires_grad = requires_grad
+
     def optim_params(self):
+        self.set_requires_grad([self.D_x, self.D_y], False)
         self.optimizer_G.zero_grad()
         self.G_backward()
         self.optimizer_G.step()
 
+        self.set_requires_grad([self.D_x, self.D_y], True)
         self.optimizer_D.zero_grad()
         self.D_x_backward()
         self.D_y_backward()
