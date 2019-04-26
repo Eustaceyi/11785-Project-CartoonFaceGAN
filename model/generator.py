@@ -32,7 +32,7 @@ class ResnetBlock(nn.Module):
 
 
 class ResnetGenerator(nn.Module):
-    def __init__(self, in_channels, out_channels, n_filters, n_blocks, use_dropout):
+    def __init__(self, in_channels, out_channels, n_filters, n_blocks, n_sample, use_dropout):
         super(ResnetGenerator, self).__init__()
 
         model = [
@@ -47,8 +47,8 @@ class ResnetGenerator(nn.Module):
             nn.ReLU(inplace=True)
         ]
 
-        n_downsample = 2
-        n_upsample = 2
+        n_downsample = n_sample
+        n_upsample = n_sample
 
         # downsampling layers
         # downsample to N/(2^layers) X N/(2^layers)
