@@ -35,5 +35,5 @@ Use CycleGAN to transfer human face image into cartoon style.
 	- Add Identity Loss
 	- Add Loss visualizing in during training process
 - Progress :
-	- Debugged the CycleGan model
+	- Debugged the CycleGan model (Still have bugs)
 
