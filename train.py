@@ -46,7 +46,7 @@ train_dataset = Cycle_GAN_Dataset(train_path_A, train_path_B)
 train_loader = utils.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # Model
-Model = CycleGAN(in_channels=3, out_channels=3, n_filters=32, n_blocks=3, n_sample=4)
+Model = CycleGAN(in_channels=3, out_channels=3, n_filters=64, n_blocks=6, n_sample=2)
 
 # Visual
 visual = Visualizer()
