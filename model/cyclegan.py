@@ -19,6 +19,12 @@ class CycleGAN(nn.Module):
         self.GANLoss = GANLoss()
         self.CycleLoss = CycleLoss()
         self.IdtLoss = IdentityLoss()
+        self.G_loss = torch.zeros(1)
+        self.F_loss = torch.zeros(1)
+        self.cycleA_loss = torch.zeros(1)
+        self.cycleB_loss = torch.zeros(1)
+        self.idt_loss_A = torch.zeros(1)
+        self.idt_loss_B = torch.zeros(1)
         self.optimizer_G = torch.optim.Adam(itertools.chain(self.G.parameters(), self.F.parameters()), lr=learning_rate)
         self.optimizer_D = torch.optim.Adam(itertools.chain(self.D_x.parameters(), self.D_y.parameters()), lr=learning_rate)
         
