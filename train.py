@@ -53,15 +53,34 @@ visual = Visualizer()
 
 # Training Loop
 total_step = len(train_loader)
+
+for epoch in range(num_epochs):
+    Model.train()
+    iters = 0
+    for i, (train_A, train_B) in enumerate(train_loader):
+        iters += i
+
 print('Start Training!')
 for epoch in range(num_epochs):
     Model.train()
     for i, (train_A, train_B) in enumerate(train_loader):
+
         train_A = train_A.to(device)
         train_B = train_B.to(device)
 
         fake_A, fake_B, recover_A, recover_B = Model.generator_forward(train_A, train_B)
         bce_A, bce_B = Model.discriminator_forward(fake_A, fake_B)
+
+        losses = [Model.G_loss.item(), Model.F_loss.item(), 
+                Model.cycleA_loss.item(), Model.cycleB_loss.item(), 
+                Model.idt_loss_A.item(), Model.idt_loss_B.item()]
+
+        legend = ["Generator_A_loss", "Generator_B_loss", 
+                   "CycleA_loss", "CycleB_loss",
+                   "IdentityA_loss","IdentityB_loss" ]   
+
+        visual.plot_loss(epoch, iters / 1000, losses, legend)  #for multi- classes losses ploting     
+
         Model.optim_params()
         # fake_A = transforms.ToPILImage()(fake_A.squeeze(0).detach().cpu()).convert('RGB')
         # fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')

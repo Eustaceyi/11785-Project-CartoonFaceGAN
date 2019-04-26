@@ -29,3 +29,11 @@ Use CycleGAN to transfer human face image into cartoon style.
 	- Modify train.py to visualize images
 - TODO:
 	- Seems that it is not learning very well, need further debug
+
+### 04/25/2019
+- Modify files:
+	- Add Identity Loss
+	- Add Loss visualizing in during training process
+- Progress :
+	- Debugged the CycleGan model
+
