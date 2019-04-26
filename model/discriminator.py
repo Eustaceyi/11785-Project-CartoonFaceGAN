@@ -27,7 +27,7 @@ class Discriminator(nn.Module):
                 sequence += [nn.Conv2d(prev_hid_chan, hid_chan, kernel_size=4, stride=2, padding=1, bias=False),
                             norm_layer(hid_chan),
                             nn.LeakyReLU(0.2, True)]
-            sequence += [nn.Conv2d(hid_chan, 1, kernel_size=4, stride=2, padding=1)]
+            sequence += [nn.Conv2d(hid_chan, 1, kernel_size=4, stride=1, padding=1)]
         else:
             sequence = [nn.Conv2d(input_pic_chan, 64, kernel_size=4, stride=2, padding=1),
                         nn.LeakyReLU(0.2, True),
@@ -44,7 +44,7 @@ class Discriminator(nn.Module):
                 sequence += [nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False),
                             norm_layer(512),
                             nn.LeakyReLU(0.2, True)]
-            sequence += [nn.Conv2d(512, 1, kernel_size=4, stride=2, padding=1)]
+            sequence += [nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=1)]
         
         self.model = nn.Sequential(*sequence)
 

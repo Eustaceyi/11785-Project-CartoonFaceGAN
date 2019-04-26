@@ -17,7 +17,7 @@ class ResnetBlock(nn.Module):
         ]
 
         if use_dropout:
-            nn.Dropout(out)
+            block +=[nn.Dropout(0.5)]
 
         block += [
             nn.ReflectionPad2d(1),
