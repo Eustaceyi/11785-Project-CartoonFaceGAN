@@ -53,7 +53,7 @@ visual = Visualizer()
 
 # Training Loop
 total_step = len(train_loader)
-<<<<<<< HEAD
+
 for epoch in range(num_epochs):
     Model.train()
     iters = 0
