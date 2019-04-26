@@ -39,8 +39,8 @@ class CycleGAN(nn.Module):
 
         return self.fake_A, self.fake_B, self.recover_A, self.recover_B
 
-    def discriminator_forward(self, input_A, input_B):
-        return self.D_x(input_A), self.D_y(input_B)
+    # def discriminator_forward(self, input_A, input_B):
+    #     return self.D_x(input_A), self.D_y(input_B)
 
     def discriminator_backward_basic(self, discriminator, real, fake):
         pred_real = discriminator(real)
