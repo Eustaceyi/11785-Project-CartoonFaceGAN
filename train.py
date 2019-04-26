@@ -61,7 +61,7 @@ for epoch in range(num_epochs):
         train_B = train_B.to(device)
 
         fake_A, fake_B, recover_A, recover_B = Model.generator_forward(train_A, train_B)
-        bce_A, bce_B = Model.discriminator_forward(fake_A, fake_B)
+        # bce_A, bce_B = Model.discriminator_forward(fake_A, fake_B)
 
         losses = [Model.G_loss.item(), Model.F_loss.item(), 
                 Model.cycleA_loss.item(), Model.cycleB_loss.item(), 
