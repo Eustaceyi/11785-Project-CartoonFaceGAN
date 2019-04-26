@@ -32,7 +32,14 @@ class ResnetBlock(nn.Module):
 
 
 class ResnetGenerator(nn.Module):
-    def __init__(self, in_channels, out_channels, n_filters, n_blocks, n_sample, use_dropout):
+    def __init__(self, 
+        in_channels=3, 
+        out_channels=3, 
+        n_filters=64, 
+        n_blocks=6, 
+        n_sample=2, 
+        use_dropout=False
+    ):
         super(ResnetGenerator, self).__init__()
 
         model = [
