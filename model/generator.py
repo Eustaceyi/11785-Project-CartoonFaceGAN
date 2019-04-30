@@ -13,7 +13,7 @@ class ResnetBlock(nn.Module):
             nn.ReflectionPad2d(1),
             nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias), 
             # nn.BatchNorm2d(dim),
-            norm_layer(dim)
+            norm_layer(dim),
             nn.ReLU(inplace=True)
         ]
 
