@@ -4,15 +4,16 @@ import torch.nn as nn
 
 
 class ResnetBlock(nn.Module):
-    def __init__(self, dim, use_dropout=False, use_bias=False):
+    def __init__(self, dim, norm_layer, use_dropout=False, use_bias=False):
         super(ResnetBlock, self).__init__()
         self.dim = dim
-
+        
         block = []
         block += [
             nn.ReflectionPad2d(1),
             nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias), 
-            nn.BatchNorm2d(dim),
+            # nn.BatchNorm2d(dim),
+            norm_layer(dim)
             nn.ReLU(inplace=True)
         ]
 
@@ -22,7 +23,8 @@ class ResnetBlock(nn.Module):
         block += [
             nn.ReflectionPad2d(1),
             nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias),
-            nn.BatchNorm2d(dim)
+            # nn.BatchNorm2d(dim)
+            norm_layer(dim)
         ]
 
         self.block = nn.Sequential(*block)
@@ -38,10 +40,17 @@ class ResnetGenerator(nn.Module):
         n_filters=64, 
         n_blocks=6, 
         n_sample=2, 
-        use_dropout=False
+        use_dropout=False, 
+        norm_layer_type='instance'
     ):
         super(ResnetGenerator, self).__init__()
-
+        if norm_layer_type == 'batch':
+            norm_layer = nn.BatchNorm2d
+        elif norm_layer_type == 'instance':
+            norm_layer = nn.InstanceNorm2d
+        else:
+            raise NotImplementedError('{} not implemented'.format(norm_layer_type))
+        
         model = [
             nn.ReflectionPad2d(3), 
             nn.Conv2d(
@@ -50,7 +59,8 @@ class ResnetGenerator(nn.Module):
                 kernel_size=7, 
                 padding=0, 
                 bias=False),
-            nn.BatchNorm2d(n_filters),
+            # nn.BatchNorm2d(n_filters),
+            norm_layer(n_filters),
             nn.ReLU(inplace=True)
         ]
 
@@ -69,14 +79,15 @@ class ResnetGenerator(nn.Module):
                     stride=2, 
                     padding=1, 
                     bias=False),
-                nn.BatchNorm2d(cur_n_filters*2),
+                # nn.BatchNorm2d(cur_n_filters*2),
+                norm_layer(cur_n_filters * 2),
                 nn.ReLU(inplace=True)
             ]
         
         # Resnet blocks
         for i in range(n_blocks):
             model += [
-                ResnetBlock(cur_n_filters*2, use_dropout=False, use_bias=False)
+                ResnetBlock(cur_n_filters*2, norm_layer, use_dropout=False, use_bias=False)
             ]
         
         # upsampling layers
@@ -92,7 +103,8 @@ class ResnetGenerator(nn.Module):
                     output_padding=1,
                     bias=False
                     ), 
-                nn.BatchNorm2d(cur_n_filters//2),
+                # nn.BatchNorm2d(cur_n_filters//2),
+                norm_layer(cur_n_filters // 2),
                 nn.ReLU(inplace=True)
             ]
 
