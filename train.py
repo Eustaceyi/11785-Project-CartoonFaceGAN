@@ -1,110 +1,98 @@
+import time
 import torch
-import torch.nn as nn
-import numpy as np
-import torch.nn.functional as F
-from torchvision import datasets
-import torchvision.transforms as transforms
-import torch.utils.data as utils
-from model.loss import GANLoss, CycleLoss, IdentityLoss
-from model.generator import ResnetGenerator
-from model.discriminator import Discriminator
-from model.cyclegan import CycleGAN
 from util.visualizer import Visualizer
-from PIL import Image
-
-# Hyper Parameters
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-batch_size = 1
-num_epochs = 200
-learning_rate = 1e-3
-
-# Dataset
-transform = transforms.Compose([
-	transforms.Resize((128,128)),
-	transforms.ToTensor()])
-
-class Cycle_GAN_Dataset(utils.Dataset):
-    def __init__(self, train_folder_A, train_folder_B):
-        super(Cycle_GAN_Dataset, self).__init__()
-        self.train_A = datasets.ImageFolder(train_folder_A, transform=transform)
-        self.train_B = datasets.ImageFolder(train_folder_B, transform=transform)
-        assert self.train_A.__len__() == self.train_B.__len__()
-
-    def __getitem__(self, index):
-        self.real_A = self.train_A.__getitem__(index)[0]
-        self.real_B = self.train_B.__getitem__(index)[0]
-        return self.real_A, self.real_B
-
-    def __len__(self):
-        return self.train_A.__len__()
-
-train_path_A = 'C:/Users/eusta/Dropbox/Courses/11785/project/dataset/human_face/'
-train_path_B = 'C:/Users/eusta/Dropbox/Courses/11785/project/dataset/emoji_face/'
-train_dataset = Cycle_GAN_Dataset(train_path_A, train_path_B)
-
-# Dataloader
-train_loader = utils.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-
-# Model
-Model = CycleGAN(in_channels=3, out_channels=3, n_filters=64, n_blocks=6, n_sample=2)
-
-# Visual
-visual = Visualizer()
-
-# Training Loop
-total_step = len(train_loader)
-print('Start Training!')
-for epoch in range(num_epochs):
-    Model.train()
-    for i, (train_A, train_B) in enumerate(train_loader):
-        train_A = train_A.to(device)
-        train_B = train_B.to(device)
-
-        fake_A, fake_B, recover_A, recover_B = Model.generator_forward(train_A, train_B)
-        # bce_A, bce_B = Model.discriminator_forward(fake_A, fake_B)
-
-        losses = [Model.G_loss.item(), Model.F_loss.item(), 
-                Model.cycleA_loss.item(), Model.cycleB_loss.item(), 
-                Model.idt_loss_A.item(), Model.idt_loss_B.item()]
-
-        legend = ["Generator_A_loss", "Generator_B_loss", 
-                   "CycleA_loss", "CycleB_loss",
-                   "IdentityA_loss","IdentityB_loss" ]   
-
-        visual.plot_loss(epoch, i / 1000, losses, legend)  #for multi- classes losses ploting     
-
-        Model.optim_params()
-        # fake_A = transforms.ToPILImage()(fake_A.squeeze(0).detach().cpu()).convert('RGB')
-        # fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')
-        # recover_A = transforms.ToPILImage()(recover_A.squeeze(0).detach().cpu()).convert('RGB')
-        # recover_B = transforms.ToPILImage()(recover_B.squeeze(0).detach().cpu()).convert('RGB')
-        # fake_A.save('fake_A.png')
-        # fake_B.save('fake_B.png')
-        # recover_A.save('recover_A.png')
-        # recover_B.save('recover_B.png')
-
-        if (i+1) % 5 == 0:
-            print('Epoch [{}/{}], Step [{}/{}]'
-                    .format(epoch+1, num_epochs, i+1, total_step))
-        if (i+1) % 50 == 0:    
-            to_vis = [train_A.detach(), train_B.detach(), fake_A.detach(),
-                    fake_B.detach(), recover_A.detach(), recover_B.detach()]
-            to_vis = torch.stack(to_vis).squeeze(1)
-            print(to_vis.shape)
-            visual.plot_pictures(to_vis, epoch)
-            # fake_A = transforms.ToPILImage()(fake_A.squeeze(0).detach().cpu()).convert('RGB')
-            # fake_B = transforms.ToPILImage()(fake_B.squeeze(0).detach().cpu()).convert('RGB')
-            # recover_A = transforms.ToPILImage()(recover_A.squeeze(0).detach().cpu()).convert('RGB')
-            # recover_B = transforms.ToPILImage()(recover_B.squeeze(0).detach().cpu()).convert('RGB')
-            # fake_A.save('fake_A_'+str(epoch)+'.png')
-            # fake_B.save('fake_B_'+str(epoch)+'.png')
-            # recover_A.save('recover_A_'+str(epoch)+'.png')
-            # recover_B.save('recover_B_'+str(epoch)+'.png')
+from util.utils import save_img
+from util.dataloader import *
+from CycleGAN import *
 
 
+def tensor2im(input_image, imtype=np.uint8):
+    """"Converts a Tensor array into a numpy image array.
+
+    Parameters:
+        input_image (tensor) --  the input image tensor array
+        imtype (type)        --  the desired type of the converted numpy array
+    """
+    if not isinstance(input_image, np.ndarray):
+        if isinstance(input_image, torch.Tensor):  # get the data from a variable
+            image_tensor = input_image.data
+        else:
+            return input_image
+        image_numpy = image_tensor[0].cpu().float().numpy()  # convert it into a numpy array
+        if image_numpy.shape[0] == 1:  # grayscale to RGB
+            image_numpy = np.tile(image_numpy, (3, 1, 1))
+        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
+    else:  # if it is a numpy array, do nothing
+        image_numpy = input_image
+    image_numpy.astype(imtype)
+    return image_numpy.transpose([2,0,1])
 
 
+if __name__ == '__main__':   # get training options
+    dataset = loader_main(opt)        # create a dataset given opt.dataset_mode and other options
+    # dataset_size = len(dataset)    # get the number of images in the dataset.
+    # print('The number of training images = %d' % dataset_size)
 
+    model = CycleGANModel()
+    visual= Visualizer()   # create a visualizer that display/save images and plots
+    total_iters = 0                # the total number of training iterations
+    results = None
 
+    for epoch in range(300):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
+        epoch_start_time = time.time()  # timer for entire epoch
+        iter_data_time = time.time()    # timer for data loading per iteration
+        epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
+        fake_loss = 1 
+        for i, data in enumerate(dataset):  # inner loop within one epoch
+            # print(data)
+            epoch_iter +=1
+            iter_start_time = time.time()  # timer for computation per iteration
 
-    
+            total_iters += 1
+            epoch_iter += 1
+
+            model.set_input(data)         # unpack data from dataset and apply preprocessing
+            model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
+
+            if total_iters % 1 == 0:   # display images on visdom and save images to a HTML file
+                results = model.return_resuts() 
+
+                fake_loss +=1
+                losses = [results[4].cpu().item(),
+                            results[5].cpu().item(),
+                            results[6].cpu().item(),
+                            results[7].cpu().item(),
+                            results[8].cpu().item(),
+                            results[9].cpu().item(), 
+                            results[10].cpu().item(), 
+                            results[11].cpu().item()]
+                    
+                legend = ["D_A_loss", 
+                            "D_B_loss", 
+                            "G_A_loss",    
+                            "G_B_loss", 
+                            "Cycle_A_Loss", 
+                            "Cycle_B_loss",
+                            "IdentityA_loss",
+                            "IdentityB_loss"]
+
+                visual.plot_loss(epoch, epoch_iter / len(dataset), losses, legend)
+
+                fake_A, fake_B, recover_A, recover_B = results[0], results[1],results[2],results[3]
+                to_vis = [tensor2im(data['A'].cpu().detach()), 
+                            tensor2im(data['B'].cpu().detach()),
+                            tensor2im(fake_A.cpu().detach()), 
+                            tensor2im(fake_B.cpu().detach()), 
+                            tensor2im(recover_A.cpu().detach()), 
+                            tensor2im(recover_B.cpu().detach())]
+
+                visual.plot_pictures(to_vis, epoch)
+                
+        torch.save(model.state_dict(), 'model_' + str(epoch) +'.ckpt')
+        save_img(to_vis[0].astype('uint8').transpose(1,2,0), './checkpoints/real_A' + str(epoch) + '.png')
+        save_img(to_vis[1].astype('uint8').transpose(1,2,0), './checkpoints/real_B' + str(epoch) + '.png')
+        save_img(to_vis[2].astype('uint8').transpose(1,2,0), './checkpoints/fake_A' + str(epoch) + '.png')
+        save_img(to_vis[3].astype('uint8').transpose(1,2,0), './checkpoints/fake_B' + str(epoch) + '.png')
+        save_img(to_vis[4].astype('uint8').transpose(1,2,0), './checkpoints/rec_B' + str(epoch) + '.png')
+        save_img(to_vis[5].astype('uint8').transpose(1,2,0), './checkpoints/rec_B' + str(epoch) + '.png')
+        

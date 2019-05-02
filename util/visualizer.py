@@ -15,7 +15,7 @@ else:
     VisdomExceptionBase = ConnectionError
 
 class Visualizer():
-    def __init__(self,display_id= 1, use_html= True, display_winsize= 256, display_name="test", display_port =8097, 
+    def __init__(self,display_id= 1, use_html= True, display_winsize= 256, display_name="train", display_port =8097, 
         display_ncols = 4, display_server ="http://localhost", display_env ='main', checkpoints_dir = './checkpoints',
         ):
         ''' Initialize parameters to start up the local server for Visdom
@@ -95,6 +95,10 @@ class Visualizer():
         #plot the loss. Need to determine if it is multi- loss or single loss
         if legend != None:
             try:
+                # print(losses)
+                # print(legend)
+                # print(np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1).shape)
+                # print(np.array(self.plot_data['Y']).shape)
                 self.vis.line(X=np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1),
                     Y=np.array(self.plot_data['Y']),
                     opts={
@@ -125,13 +129,13 @@ class Visualizer():
                             i.e pictures' shape: [8, 3, 10,10]  --> means we have 8 pictures, 3 channels, 10 in width, 10 in height 
            num_epochs    -- Current epoch numbers          
            '''
-        numpy_image = []
+        # numpy_image = []
 
-        for image in picture_array:
-            image = image.cpu()
-            numpy_image.append(image.numpy())
+        # for image in picture_array:
+        #     image = image.cpu()
+        #     numpy_image.append(image.numpy())
         
-        numpy_image = np.array(numpy_image)
+        numpy_image = np.array(picture_array)
         self.vis.images(numpy_image, nrow = 4, padding = 2, opts = dict(title = '%s' %num_epochs), win = self.display_id+1)
 
     def print_loss(self,epoch,iterations,loss,time_for_cal):
@@ -144,11 +148,3 @@ class Visualizer():
         """
         on_screen = "epoch: {}, iter: {}, loss: {}, time_for_cal: {}".format(epoch, iterations, [*loss], time_for_cal)
         print(on_screen)
-
-
-
-
-
-
-
-
