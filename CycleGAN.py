@@ -152,6 +152,11 @@ class CycleGANModel(nn.Module):
         self.real_B = input['B' if AtoB else 'A'].to(device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
+    def forward_test(self):
+        self.fake_B = self.netG_A(self.real_A)
+        self.fake_A = self.netG_B(self.real_B)
+        return (self.fake_A, self.fake_B)
+
     def forward(self):
         self.fake_B = self.netG_A(self.real_A)  # G_A(A)
         self.rec_A = self.netG_B(self.fake_B)   # G_B(G_A(A))
