@@ -11,7 +11,6 @@ import numpy as np
 
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument('--input_nc', type=int, default=3)
 parser.add_argument('--output_nc', type=int, default=3)
 parser.add_argument('--ngf', type=int, default=64)
@@ -33,14 +32,8 @@ parser.add_argument('--beta1', type=float, default=0.5)
 parser.add_argument('--direction', type=str, default='AtoB')
 parser.add_argument('--device', type=str, default='cuda:0')
 parser.add_argument('--lr_policy', type=str, default='linear')
-
-
-# parser = argparse.ArgumentParser(description='loader')
 parser.add_argument('--dataroot', type=str, default='/home/cmu/Dropbox/dataset/train', help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
-parser.add_argument('--input_nc', type=int, default=3, help='# of input image channels: 3 for RGB and 1 for grayscale')
-parser.add_argument('--output_nc', type=int, default=3, help='# of output image channels: 3 for RGB and 1 for grayscale')
 parser.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
-parser.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
 parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')
 parser.add_argument('--num_threads', default=4, type=int, help='# threads for loading data')
 parser.add_argument('--batch_size', type=int, default=1, help='input batch size')
@@ -51,10 +44,36 @@ parser.add_argument('--preprocess', type=str, default='resize_and_crop', help='s
 parser.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data augmentation')
 parser.add_argument('--display_winsize', type=int, default=256, help='display window size for both visdom and HTML')
 parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
-opt = parser.parse_args() 
+args = parser.parse_args() 
+opt = args
 
-# args = parser.parse_args()
 
+#for test opts
+parser_t = argparse.ArgumentParser(description='loader')
+parser_t.add_argument('--dataroot', type=str, default='/home/cmu/Dropbox/dataset/train', help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
+parser_t.add_argument('--input_nc', type=int, default=3, help='# of input image channels: 3 for RGB and 1 for grayscale')
+parser_t.add_argument('--output_nc', type=int, default=3, help='# of output image channels: 3 for RGB and 1 for grayscale')
+parser_t.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
+parser_t.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
+parser_t.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')
+parser_t.add_argument('--num_threads', default=4, type=int, help='# threads for loading data')
+parser_t.add_argument('--batch_size', type=int, default=1, help='input batch size')
+parser_t.add_argument('--load_size', type=int, default=286, help='scale images to this size')
+parser_t.add_argument('--crop_size', type=int, default=256, help='then crop to this size')
+parser_t.add_argument('--max_dataset_size', type=int, default=float("inf"), help='Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.')
+parser_t.add_argument('--preprocess', type=str, default='resize_and_crop', help='scaling and cropping of images at load time [resize_and_crop | crop | scale_width | scale_width_and_crop | none]')
+parser_t.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data augmentation')
+parser_t.add_argument('--display_winsize', type=int, default=256, help='display window size for both visdom and HTML')
+parser_t.add_argument('--phase', type=str, default='test', help='train, val, test, etc')
+parser_t.add_argument('--modelpath', type= str, default = './', help = 'path to the model')
+opt_test = parser_t.parse_args()
+
+
+
+
+
+
+######################################################################################################################################################################################################################
 input_nc = args.input_nc
 output_nc = args.output_nc
 ngf = args.ngf
@@ -151,11 +170,6 @@ class CycleGANModel(nn.Module):
         self.real_A = input['A' if AtoB else 'B'].to(device)
         self.real_B = input['B' if AtoB else 'A'].to(device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
-
-    def forward_test(self):
-        self.fake_B = self.netG_A(self.real_A)
-        self.fake_A = self.netG_B(self.real_B)
-        return (self.fake_A, self.fake_B)
 
     def forward(self):
         self.fake_B = self.netG_A(self.real_A)  # G_A(A)
