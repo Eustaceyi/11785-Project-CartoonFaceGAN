@@ -42,5 +42,4 @@ Use CycleGAN to transfer human face image into cartoon style.
 	- Modify train, model and utils files
 - Progress:
 	- The network is working and we get results
-- TODO:
 	- Add test part and output test results
