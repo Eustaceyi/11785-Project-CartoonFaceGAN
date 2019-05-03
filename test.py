@@ -7,12 +7,12 @@ from CycleGAN import *
 from util.utils import tensor2im
 
 if __name__ == '__main__':
-    dataset = loader_main(opt_test)
+    dataset = loader_main(opt)
 
     model = CycleGANModel()
-    model.load_state_dict(torch.load(opt_test.modelpath))
+    model.load_state_dict(torch.load('C:/Users/eusta/Dropbox/Courses/11785/project/model_295.ckpt'))
     model.eval()
-    
+
     with torch.no_grad():
         for i, data in enumerate(dataset):
             model.set_input(data)
