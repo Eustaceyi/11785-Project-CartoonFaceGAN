@@ -32,7 +32,7 @@ parser.add_argument('--beta1', type=float, default=0.5)
 parser.add_argument('--direction', type=str, default='AtoB')
 parser.add_argument('--device', type=str, default='cuda:0')
 parser.add_argument('--lr_policy', type=str, default='linear')
-parser.add_argument('--dataroot', type=str, default='/home/cmu/Dropbox/dataset/train', help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
+parser.add_argument('--dataroot', type=str,  required=True, help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
 parser.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
 parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')
 parser.add_argument('--num_threads', default=4, type=int, help='# threads for loading data')
@@ -50,7 +50,7 @@ opt = args
 
 #for test opts
 parser_t = argparse.ArgumentParser(description='loader')
-parser_t.add_argument('--dataroot', type=str, default='/home/cmu/Dropbox/dataset/train', help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
+parser_t.add_argument('--dataroot', type=str,  required=True, , help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
 parser_t.add_argument('--input_nc', type=int, default=3, help='# of input image channels: 3 for RGB and 1 for grayscale')
 parser_t.add_argument('--output_nc', type=int, default=3, help='# of output image channels: 3 for RGB and 1 for grayscale')
 parser_t.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
@@ -65,7 +65,7 @@ parser_t.add_argument('--preprocess', type=str, default='resize_and_crop', help=
 parser_t.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data augmentation')
 parser_t.add_argument('--display_winsize', type=int, default=256, help='display window size for both visdom and HTML')
 parser_t.add_argument('--phase', type=str, default='test', help='train, val, test, etc')
-parser_t.add_argument('--modelpath', type= str, default = './', help = 'path to the model')
+parser_t.add_argument('--modelpath', type= str,  required=True, help = 'path to the model')
 opt_test = parser_t.parse_args()
 
 
