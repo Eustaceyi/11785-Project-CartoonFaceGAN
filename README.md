@@ -4,6 +4,9 @@ Use CycleGAN to transfer human face image into cartoon style.
 
 
 ## Updates
+### 09/06/2019
+- New files:
+	- add poster for final presentation
 ### 03/31/2019
 - New files:
 	- generator.py: generator with resnet block
